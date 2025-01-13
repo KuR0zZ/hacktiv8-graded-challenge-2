@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
 	github.com/joho/godotenv v1.5.1
+	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/crypto v0.32.0
 	google.golang.org/grpc v1.69.2
 	google.golang.org/protobuf v1.36.2

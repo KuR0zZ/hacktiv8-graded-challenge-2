@@ -20,12 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServerService_Register_FullMethodName    = "/server.ServerService/Register"
-	ServerService_Login_FullMethodName       = "/server.ServerService/Login"
-	ServerService_GetBookById_FullMethodName = "/server.ServerService/GetBookById"
-	ServerService_AddBook_FullMethodName     = "/server.ServerService/AddBook"
-	ServerService_UpdateBook_FullMethodName  = "/server.ServerService/UpdateBook"
-	ServerService_DeleteBook_FullMethodName  = "/server.ServerService/DeleteBook"
+	ServerService_Register_FullMethodName         = "/server.ServerService/Register"
+	ServerService_Login_FullMethodName            = "/server.ServerService/Login"
+	ServerService_GetBookById_FullMethodName      = "/server.ServerService/GetBookById"
+	ServerService_AddBook_FullMethodName          = "/server.ServerService/AddBook"
+	ServerService_UpdateBook_FullMethodName       = "/server.ServerService/UpdateBook"
+	ServerService_DeleteBook_FullMethodName       = "/server.ServerService/DeleteBook"
+	ServerService_BorrowBook_FullMethodName       = "/server.ServerService/BorrowBook"
+	ServerService_UpdateBookStatus_FullMethodName = "/server.ServerService/UpdateBookStatus"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -38,6 +40,8 @@ type ServerServiceClient interface {
 	AddBook(ctx context.Context, in *AddBookRequest, opts ...grpc.CallOption) (*AddBookResponse, error)
 	UpdateBook(ctx context.Context, in *UpdateBookRequest, opts ...grpc.CallOption) (*UpdateBookResponse, error)
 	DeleteBook(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	BorrowBook(ctx context.Context, in *BorrowBookRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateBookStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UpdateBookStatusResponse, error)
 }
 
 type serverServiceClient struct {
@@ -108,6 +112,26 @@ func (c *serverServiceClient) DeleteBook(ctx context.Context, in *BookID, opts .
 	return out, nil
 }
 
+func (c *serverServiceClient) BorrowBook(ctx context.Context, in *BorrowBookRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServerService_BorrowBook_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) UpdateBookStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UpdateBookStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateBookStatusResponse)
+	err := c.cc.Invoke(ctx, ServerService_UpdateBookStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServiceServer is the server API for ServerService service.
 // All implementations must embed UnimplementedServerServiceServer
 // for forward compatibility.
@@ -118,6 +142,8 @@ type ServerServiceServer interface {
 	AddBook(context.Context, *AddBookRequest) (*AddBookResponse, error)
 	UpdateBook(context.Context, *UpdateBookRequest) (*UpdateBookResponse, error)
 	DeleteBook(context.Context, *BookID) (*emptypb.Empty, error)
+	BorrowBook(context.Context, *BorrowBookRequest) (*emptypb.Empty, error)
+	UpdateBookStatus(context.Context, *emptypb.Empty) (*UpdateBookStatusResponse, error)
 	mustEmbedUnimplementedServerServiceServer()
 }
 
@@ -145,6 +171,12 @@ func (UnimplementedServerServiceServer) UpdateBook(context.Context, *UpdateBookR
 }
 func (UnimplementedServerServiceServer) DeleteBook(context.Context, *BookID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
+}
+func (UnimplementedServerServiceServer) BorrowBook(context.Context, *BorrowBookRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BorrowBook not implemented")
+}
+func (UnimplementedServerServiceServer) UpdateBookStatus(context.Context, *emptypb.Empty) (*UpdateBookStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBookStatus not implemented")
 }
 func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
 func (UnimplementedServerServiceServer) testEmbeddedByValue()                       {}
@@ -275,6 +307,42 @@ func _ServerService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServerService_BorrowBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BorrowBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).BorrowBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_BorrowBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).BorrowBook(ctx, req.(*BorrowBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_UpdateBookStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).UpdateBookStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_UpdateBookStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).UpdateBookStatus(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServerService_ServiceDesc is the grpc.ServiceDesc for ServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +373,14 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteBook",
 			Handler:    _ServerService_DeleteBook_Handler,
+		},
+		{
+			MethodName: "BorrowBook",
+			Handler:    _ServerService_BorrowBook_Handler,
+		},
+		{
+			MethodName: "UpdateBookStatus",
+			Handler:    _ServerService_UpdateBookStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

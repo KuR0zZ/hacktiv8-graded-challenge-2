@@ -13,6 +13,8 @@ service ServerService {
     rpc AddBook(AddBookRequest) returns (AddBookResponse) {}
     rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse) {}
     rpc DeleteBook(BookID) returns (google.protobuf.Empty) {}
+    rpc BorrowBook(BorrowBookRequest) returns (google.protobuf.Empty) {}
+    rpc UpdateBookStatus(google.protobuf.Empty) returns (UpdateBookStatusResponse) {}
 }
 
 message RegisterRequest {
@@ -80,4 +82,15 @@ message UpdateBookResponse {
     string published_date = 4;
     string status = 5;
     string user_id = 6;
+}
+
+message BorrowBookRequest {
+    string book_id = 1;
+    string user_id = 2;
+    string borrow_date = 3;
+    string returned_date = 4;
+}
+
+message UpdateBookStatusResponse {
+    int32 counter = 1;
 }

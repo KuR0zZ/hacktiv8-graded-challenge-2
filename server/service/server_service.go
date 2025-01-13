@@ -6,6 +6,7 @@ import (
 	"graded-challenge-2-server/model"
 	"graded-challenge-2-server/pb"
 	"graded-challenge-2-server/repository"
+	"math"
 	"os"
 	"time"
 
@@ -191,4 +192,83 @@ func (ss *ServerService) DeleteBook(ctx context.Context, req *pb.BookID) (*empty
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (ss *ServerService) BorrowBook(ctx context.Context, req *pb.BorrowBookRequest) (*emptypb.Empty, error) {
+	book, err := ss.repo.GetBookByID(req.BookId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "book not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if book.Status == "Borrowed" {
+		return nil, status.Error(codes.Unavailable, "book is already borrowed")
+	}
+
+	borrowDate, err := time.Parse("2006-01-02", req.BorrowDate)
+	if err != nil {
+		return nil, err
+	}
+
+	returnDate, err := time.Parse("2006-01-02", req.ReturnedDate)
+	if err != nil {
+		return nil, err
+	}
+
+	borrowDetail := &model.BorrowedBook{
+		ID:           uuid.New().String(),
+		BookID:       req.BookId,
+		UserID:       req.UserId,
+		BorrowedDate: borrowDate,
+		ReturnDate:   returnDate,
+	}
+
+	if err := ss.repo.BorrowBook(borrowDetail); err != nil {
+		return nil, err
+	}
+
+	book.Status = "Borrowed"
+
+	if err := ss.repo.UpdateBook(book); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (ss *ServerService) UpdateBookStatus(ctx context.Context, req *emptypb.Empty) (*pb.UpdateBookStatusResponse, error) {
+	books, err := ss.repo.GetAllBook()
+	if err != nil {
+		return nil, err
+	}
+
+	counter := 0
+	for _, book := range books {
+		if book.Status == "Borrowed" {
+			borrowDetail, err := ss.repo.GetBorrowByBookID(book.ID)
+			if err != nil {
+				return nil, err
+			}
+
+			currDate := time.Now()
+			dayPass := int(math.Round(currDate.Sub(borrowDetail.BorrowedDate).Hours() / 24))
+
+			zeroValue := time.Time{}
+
+			if borrowDetail.ReturnDate == zeroValue && dayPass > 7 {
+				book.Status = "Late"
+
+				err := ss.repo.UpdateBook(&book)
+				if err != nil {
+					return nil, err
+				}
+
+				counter++
+			}
+		}
+	}
+
+	return &pb.UpdateBookStatusResponse{Counter: int32(counter)}, nil
 }

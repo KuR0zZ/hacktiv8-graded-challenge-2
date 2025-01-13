@@ -2,6 +2,7 @@ package main
 
 import (
 	"graded-challenge-2-server/config"
+	"graded-challenge-2-server/helper"
 	"graded-challenge-2-server/middleware"
 	"graded-challenge-2-server/pb"
 	"graded-challenge-2-server/repository"
@@ -25,6 +26,9 @@ func main() {
 
 	serverRepository := repository.NewServerRepositoryImpl(db)
 	serverService := service.NewServerService(serverRepository)
+
+	cronJob := helper.NewCronJob(*serverService)
+	cronJob.UpdateBookStatus()
 
 	port := os.Getenv("PORT")
 	lis, err := net.Listen("tcp", ":"+port)

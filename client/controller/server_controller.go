@@ -6,6 +6,7 @@ import (
 	"graded-challenge-2-client/helper"
 	"graded-challenge-2-client/pb"
 	"net/http"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -329,4 +330,50 @@ func (sc *ServerController) DeleteBook(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+
+func (sc *ServerController) BorrowBook(c echo.Context) error {
+	bookID := c.Param("id")
+
+	claims, ok := c.Get("user").(jwt.MapClaims)
+	if !ok {
+		return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat("internal server error"))
+	}
+
+	userID := claims["user_id"].(string)
+
+	data := &pb.BorrowBookRequest{
+		BookId:       bookID,
+		UserId:       userID,
+		BorrowDate:   time.Now().Format("2006-01-02"),
+		ReturnedDate: time.Time{}.Format("2006-01-02"),
+	}
+
+	ctx, cancel, err := helper.NewServiceContext()
+	if err != nil {
+		return err
+	}
+	defer cancel()
+
+	_, err = sc.client.BorrowBook(ctx, data)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+			case codes.Unavailable:
+				return echo.NewHTTPError(helper.ErrUnprocessable.ErrorFormat(e.Message()))
+			case codes.Internal:
+				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
+			}
+		}
+		return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(err.Error()))
+	}
+
+	res := dto.WebSuccessResponse{
+		Status:  http.StatusCreated,
+		Message: fmt.Sprintf("Successfully borrowed book with ID: %s", bookID),
+	}
+
+	return c.JSON(http.StatusCreated, res)
 }

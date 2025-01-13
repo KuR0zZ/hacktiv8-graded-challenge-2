@@ -13,4 +13,5 @@ func Init(e *echo.Echo, sc controller.ServerController) {
 	e.GET("/books/:id", sc.GetBookByID)
 	e.PUT("/books/:id", sc.UpdateBook)
 	e.DELETE("/books/:id", sc.DeleteBook)
+	e.POST("/books/:id", sc.BorrowBook)
 }
