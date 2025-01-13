@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,8 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServerService_Register_FullMethodName = "/server.ServerService/Register"
-	ServerService_Login_FullMethodName    = "/server.ServerService/Login"
+	ServerService_Register_FullMethodName    = "/server.ServerService/Register"
+	ServerService_Login_FullMethodName       = "/server.ServerService/Login"
+	ServerService_GetBookById_FullMethodName = "/server.ServerService/GetBookById"
+	ServerService_AddBook_FullMethodName     = "/server.ServerService/AddBook"
+	ServerService_UpdateBook_FullMethodName  = "/server.ServerService/UpdateBook"
+	ServerService_DeleteBook_FullMethodName  = "/server.ServerService/DeleteBook"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -29,6 +34,10 @@ const (
 type ServerServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	GetBookById(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*GetBookByIDResponse, error)
+	AddBook(ctx context.Context, in *AddBookRequest, opts ...grpc.CallOption) (*AddBookResponse, error)
+	UpdateBook(ctx context.Context, in *UpdateBookRequest, opts ...grpc.CallOption) (*UpdateBookResponse, error)
+	DeleteBook(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type serverServiceClient struct {
@@ -59,12 +68,56 @@ func (c *serverServiceClient) Login(ctx context.Context, in *LoginRequest, opts 
 	return out, nil
 }
 
+func (c *serverServiceClient) GetBookById(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*GetBookByIDResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBookByIDResponse)
+	err := c.cc.Invoke(ctx, ServerService_GetBookById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) AddBook(ctx context.Context, in *AddBookRequest, opts ...grpc.CallOption) (*AddBookResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddBookResponse)
+	err := c.cc.Invoke(ctx, ServerService_AddBook_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) UpdateBook(ctx context.Context, in *UpdateBookRequest, opts ...grpc.CallOption) (*UpdateBookResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateBookResponse)
+	err := c.cc.Invoke(ctx, ServerService_UpdateBook_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) DeleteBook(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServerService_DeleteBook_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServiceServer is the server API for ServerService service.
 // All implementations must embed UnimplementedServerServiceServer
 // for forward compatibility.
 type ServerServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	GetBookById(context.Context, *BookID) (*GetBookByIDResponse, error)
+	AddBook(context.Context, *AddBookRequest) (*AddBookResponse, error)
+	UpdateBook(context.Context, *UpdateBookRequest) (*UpdateBookResponse, error)
+	DeleteBook(context.Context, *BookID) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServerServiceServer()
 }
 
@@ -80,6 +133,18 @@ func (UnimplementedServerServiceServer) Register(context.Context, *RegisterReque
 }
 func (UnimplementedServerServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedServerServiceServer) GetBookById(context.Context, *BookID) (*GetBookByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookById not implemented")
+}
+func (UnimplementedServerServiceServer) AddBook(context.Context, *AddBookRequest) (*AddBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddBook not implemented")
+}
+func (UnimplementedServerServiceServer) UpdateBook(context.Context, *UpdateBookRequest) (*UpdateBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
+}
+func (UnimplementedServerServiceServer) DeleteBook(context.Context, *BookID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
 }
 func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
 func (UnimplementedServerServiceServer) testEmbeddedByValue()                       {}
@@ -138,6 +203,78 @@ func _ServerService_Login_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServerService_GetBookById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).GetBookById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_GetBookById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).GetBookById(ctx, req.(*BookID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_AddBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).AddBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_AddBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).AddBook(ctx, req.(*AddBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_UpdateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).UpdateBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_UpdateBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).UpdateBook(ctx, req.(*UpdateBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).DeleteBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_DeleteBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).DeleteBook(ctx, req.(*BookID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServerService_ServiceDesc is the grpc.ServiceDesc for ServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +289,22 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _ServerService_Login_Handler,
+		},
+		{
+			MethodName: "GetBookById",
+			Handler:    _ServerService_GetBookById_Handler,
+		},
+		{
+			MethodName: "AddBook",
+			Handler:    _ServerService_AddBook_Handler,
+		},
+		{
+			MethodName: "UpdateBook",
+			Handler:    _ServerService_UpdateBook_Handler,
+		},
+		{
+			MethodName: "DeleteBook",
+			Handler:    _ServerService_DeleteBook_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

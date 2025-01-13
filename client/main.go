@@ -29,6 +29,12 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	skipper := func(c echo.Context) bool {
+		return c.Path() == "/users/login" || c.Path() == "/users/register" || c.Path() == "/swagger/*"
+	}
+
+	e.Use(custom_middleware.CustomJwtMiddleware(skipper))
+
 	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to dial server: %v", err)

@@ -27,6 +27,11 @@ var (
 		Status: http.StatusUnauthorized,
 		Type:   "Unauthorized",
 	}
+
+	ErrUnprocessable = ErrorResponse{
+		Status: http.StatusUnprocessableEntity,
+		Type:   "Unprocessable Content",
+	}
 )
 
 func (er *ErrorResponse) ErrorFormat(detail interface{}) (int, *ErrorResponse) {

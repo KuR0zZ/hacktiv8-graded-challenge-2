@@ -55,5 +55,5 @@ func (sr *ServerRepositoryImpl) UpdateBook(book *model.Book) error {
 }
 
 func (sr *ServerRepositoryImpl) DeleteBook(bookID string) error {
-	return sr.db.Delete(&model.Book{}, bookID).Error
+	return sr.db.Where("id = ?", bookID).Delete(&model.Book{}).Error
 }

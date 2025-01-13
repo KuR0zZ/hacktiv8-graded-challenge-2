@@ -2,11 +2,17 @@ syntax = "proto3";
 
 package server;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "/pb";
 
 service ServerService {
     rpc Register(RegisterRequest) returns (RegisterResponse) {}
     rpc Login(LoginRequest) returns (LoginResponse) {}
+    rpc GetBookById(BookID) returns (GetBookByIDResponse) {}
+    rpc AddBook(AddBookRequest) returns (AddBookResponse) {}
+    rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse) {}
+    rpc DeleteBook(BookID) returns (google.protobuf.Empty) {}
 }
 
 message RegisterRequest {
@@ -26,4 +32,52 @@ message LoginRequest {
 
 message LoginResponse {
     string token = 1;
+}
+
+message BookID {
+    string id = 1;
+}
+
+message GetBookByIDResponse {
+    string id = 1;
+    string title = 2;
+    string author = 3;
+    string published_date = 4;
+    string status = 5;
+    string user_id = 6;
+}
+
+message AddBookRequest {
+    string title = 1;
+    string author = 2;
+    string published_date = 3;
+    string status = 4;
+    string user_id = 5;
+}
+
+message AddBookResponse {
+    string id = 1;
+    string title = 2;
+    string author = 3;
+    string published_date = 4;
+    string status = 5;
+    string user_id = 6;
+}
+
+message UpdateBookRequest {
+    string id = 1;
+    string title = 2;
+    string author = 3;
+    string published_date = 4;
+    string status = 5;
+    string user_id = 6;
+}
+
+message UpdateBookResponse {
+    string id = 1;
+    string title = 2;
+    string author = 3;
+    string published_date = 4;
+    string status = 5;
+    string user_id = 6;
 }
