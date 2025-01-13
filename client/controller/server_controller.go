@@ -22,6 +22,17 @@ func NewServerController(client pb.ServerServiceClient) *ServerController {
 	return &ServerController{client}
 }
 
+// @Summary     Register a new user
+// @Description Register a new user
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       request body dto.RegisterRequest true "User registration request"
+// @Success     201 {object} dto.WebSuccessResponse
+// @Failure     400 {object} helper.ErrorResponse
+// @Failure     401 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /users/register [post]
 func (sc *ServerController) Register(c echo.Context) error {
 	var req dto.RegisterRequest
 	if err := c.Bind(&req); err != nil {
@@ -68,6 +79,17 @@ func (sc *ServerController) Register(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// @Summary     Login a user
+// @Description Login a user
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       request body dto.LoginRequest true "Login request"
+// @Success     200 {object} dto.WebSuccessResponse
+// @Failure     400 {object} helper.ErrorResponse
+// @Failure     401 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /users/login [post]
 func (sc *ServerController) Login(c echo.Context) error {
 	var req dto.LoginRequest
 
@@ -112,6 +134,16 @@ func (sc *ServerController) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// @Summary     Get book by id
+// @Description Get book by id
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       bookid path string true "Book ID"
+// @Success     200 {object} dto.WebSuccessResponse
+// @Failure     404 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /books/:id [get]
 func (sc *ServerController) GetBookByID(c echo.Context) error {
 	bookID := c.Param("id")
 
@@ -126,7 +158,7 @@ func (sc *ServerController) GetBookByID(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Internal:
 				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
 			}
@@ -143,6 +175,16 @@ func (sc *ServerController) GetBookByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// @Summary     Add a new book
+// @Description Add a new book
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       request body dto.AddBookRequest true "Add book request"
+// @Success     201 {object} dto.WebSuccessResponse
+// @Failure     400 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /books [post]
 func (sc *ServerController) AddBook(c echo.Context) error {
 	var req dto.AddBookRequest
 
@@ -189,6 +231,19 @@ func (sc *ServerController) AddBook(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// @Summary     Update a book
+// @Description Update a book
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       bookid path string true "Book ID"
+// @Param       request body dto.UpdateBookRequest true "Update book request"
+// @Success     200 {object} dto.WebSuccessResponse
+// @Failure     400 {object} helper.ErrorResponse
+// @Failure     401 {object} helper.ErrorResponse
+// @Failure     404 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /books/:id [put]
 func (sc *ServerController) UpdateBook(c echo.Context) error {
 	bookID := c.Param("id")
 
@@ -203,7 +258,7 @@ func (sc *ServerController) UpdateBook(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Internal:
 				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
 			}
@@ -251,7 +306,7 @@ func (sc *ServerController) UpdateBook(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Internal:
 				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
 			}
@@ -268,6 +323,18 @@ func (sc *ServerController) UpdateBook(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// @Summary     Delete a book
+// @Description Delete a book
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       bookid path string true "Book ID"
+// @Success     200 {object} dto.WebSuccessResponse
+// @Failure     401 {object} helper.ErrorResponse
+// @Failure     404 {object} helper.ErrorResponse
+// @Failure     422 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /books/:id [delete]
 func (sc *ServerController) DeleteBook(c echo.Context) error {
 	bookID := c.Param("id")
 
@@ -282,7 +349,7 @@ func (sc *ServerController) DeleteBook(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Internal:
 				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
 			}
@@ -316,7 +383,7 @@ func (sc *ServerController) DeleteBook(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Internal:
 				return echo.NewHTTPError(helper.ErrInternalServer.ErrorFormat(e.Message()))
 			}
@@ -332,6 +399,17 @@ func (sc *ServerController) DeleteBook(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// @Summary     Borrow a book
+// @Description Borrow a book
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       bookid path string true "Book ID"
+// @Success     200 {object} dto.WebSuccessResponse
+// @Failure     404 {object} helper.ErrorResponse
+// @Failure     422 {object} helper.ErrorResponse
+// @Failure     500 {object} helper.ErrorResponse
+// @Router      /books/:id [post]
 func (sc *ServerController) BorrowBook(c echo.Context) error {
 	bookID := c.Param("id")
 
@@ -360,7 +438,7 @@ func (sc *ServerController) BorrowBook(c echo.Context) error {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
-				return echo.NewHTTPError(helper.ErrUnauthorized.ErrorFormat(e.Message()))
+				return echo.NewHTTPError(helper.ErrNotFound.ErrorFormat(e.Message()))
 			case codes.Unavailable:
 				return echo.NewHTTPError(helper.ErrUnprocessable.ErrorFormat(e.Message()))
 			case codes.Internal:
